@@ -1,10 +1,7 @@
 import React from "react";
 import { Link } from 'react-router-dom';
-import { useHistory } from 'react-router-dom';
-import * as auth from '../utils/auth';
 
-function Register({handleInfoTooltipClick, isSuccess}) {
-    const history = useHistory();
+function Register({onRegister}) {
     const [email, setEmail] = React.useState('');
     const [password, setPassword] = React.useState('');
 
@@ -18,17 +15,7 @@ function Register({handleInfoTooltipClick, isSuccess}) {
 
     function handleSubmit(e) {
         e.preventDefault();
-        auth.register(email, password)
-            .then(() => {
-                isSuccess(true);
-                handleInfoTooltipClick();
-                history.push('/sign-in')
-            })
-            .catch((err) => {
-                isSuccess(false);
-                handleInfoTooltipClick();
-                console.log(`Ошибка: ${err}`);
-            })
+        onRegister(email, password);
     }
 
     return (

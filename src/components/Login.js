@@ -1,9 +1,6 @@
 import React from "react";
-import { useHistory } from 'react-router-dom';
-import * as auth from '../utils/auth';
 
-function Login({ onLogin, handleInfoTooltipClick, isSuccess }) {
-    const history = useHistory();
+function Login({ onLogin }) {
     const [userData, setUserData] = React.useState({ email: '', password: '' });
 
     function userDataHandleChange(e) {
@@ -19,19 +16,7 @@ function Login({ onLogin, handleInfoTooltipClick, isSuccess }) {
         if (!userData.email || !userData.password) {
             return;
         }
-        auth.authorize(userData.email, userData.password)
-            .then((data) => {
-                if (data.token) {
-                    setUserData({ email: '', password: '' });
-                    onLogin();
-                    history.push('/');
-                }
-            })
-            .catch((err) => {
-                isSuccess(false);
-                handleInfoTooltipClick();
-                console.log(`Ошибка: ${err}`);
-            })
+        onLogin(userData);
     }
 
     return (

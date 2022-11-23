@@ -24,9 +24,8 @@ function App() {
     const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = React.useState(false);
     const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = React.useState(false);
     const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = React.useState(false);
-    const [isInfoTooltipPopupOpen, setInfoTooltipPopupOpen] = React.useState();
+    const [isInfoTooltipPopupOpen, setInfoTooltipPopupOpen] = React.useState(false);
     const [selectedCard, setSelectedCard] = React.useState({});
-
 
     //загрузка начальных данных профиля
     const [currentUser, setCurrentUser] = React.useState({});
@@ -148,22 +147,53 @@ function App() {
             })
     }
 
-    //Проверка токена
-    function checkToken () {
-    const jwt = localStorage.getItem('jwt');
-    if (localStorage.getItem('jwt')) {
-        if (jwt) {
-            auth.getContent(jwt).then((res) => {
-                if (res) {
+    //Регистрация
+    function handleRegister(email, password) {
+        auth.register(email, password)
+            .then(() => {
+                setIsSuccess(true);
+                handleInfoTooltipClick();
+                history.push('/sign-in')
+            })
+            .catch((err) => {
+                setIsSuccess(false);
+                handleInfoTooltipClick();
+                console.log(`Ошибка: ${err}`);
+            })
+    }
+
+    //Вход
+    function handleLogin(userData) {
+        auth.authorize(userData.email, userData.password)
+            .then((data) => {
+                if (data.token) {
                     setLoggedIn(true);
-                    setEmail(res.data.email);
                     history.push('/');
                 }
-            });
-        }
+            })
+            .catch((err) => {
+                isSuccess(false);
+                handleInfoTooltipClick();
+                console.log(`Ошибка: ${err}`);
+            })
     }
-}
 
+    //Проверка токена
+    function checkToken() {
+        const jwt = localStorage.getItem('jwt');
+            if (jwt) {
+                auth.getContent(jwt).then((res) => {
+                    if (res) {
+                        setLoggedIn(true);
+                        setEmail(res.data.email);
+                        history.push('/');
+                    }
+                })
+                .catch((err) => { 
+                    console.log(`Ошибка: ${err}`); 
+                })
+            }
+    }
 
     React.useEffect(() => {
         checkToken();
@@ -174,11 +204,6 @@ function App() {
             history.push('/');
         }
     }, [loggedIn]);
-
-    //Вход
-    function onLogin() {
-        setLoggedIn(true);
-    }
 
     //Выход
     function onSignOut() {
@@ -192,22 +217,18 @@ function App() {
             <div>
                 <Header
                     email={email}
-                    onLogin={onLogin}
                     onSignOut={onSignOut}
                 />
                 <Switch>
                     <Route path="/sign-in">
-                        <Login onLogin={onLogin} 
-                        handleInfoTooltipClick={handleInfoTooltipClick}
-                        isSuccess={setIsSuccess}
+                        <Login onLogin={handleLogin}
                         />
                     </Route>
                     <Route path="/sign-up">
-                        <Register handleInfoTooltipClick={handleInfoTooltipClick}
-                            isSuccess={setIsSuccess}
+                        <Register onRegister={handleRegister}
                         />
                     </Route>
-                    <ProtectedRoute path="/"
+                    <ProtectedRoute exact path="/"
                         component={Main}
                         loggedIn={loggedIn}
                         onEditProfile={handleEditProfileClick}
