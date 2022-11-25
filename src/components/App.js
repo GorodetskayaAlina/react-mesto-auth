@@ -113,6 +113,7 @@ function App() {
     };
 
     React.useEffect(() => {
+        if (localStorage.getItem('jwt')) {
         Promise.all([api.getUserInfo(), api.getInitialCards()])
             .then(([user, card]) => {
                 setCurrentUser(user);
@@ -121,7 +122,7 @@ function App() {
             .catch((err) => {
                 console.log(`Ошибка: ${err}`);
             })
-    }, []);
+    }}, [loggedIn]);
 
     //Обновление информации о пользователе
     const handleUpdateUser = ({ name, about }) => {
@@ -172,7 +173,7 @@ function App() {
                 }
             })
             .catch((err) => {
-                isSuccess(false);
+                setIsSuccess(false);
                 handleInfoTooltipClick();
                 console.log(`Ошибка: ${err}`);
             })
